@@ -43,13 +43,7 @@ Sub LoadTweetsSearch(accountuser, keyword_criteria)
 End Sub
 
 Sub WriteTweetSearch()
-	If objTweets.statuses.length = 0 Then
-
-	End If
-
-	If Err Then
-
-	End if
+	If objTweets.statuses.length > 0 Then
 
 	Dim oTweet
 	For Each oTweet In objTweets.statuses
@@ -67,21 +61,21 @@ Sub WriteTweetSearch()
 			emailBody = "<p>@" & screen_name & "<br>" & URLsBecomeLinks(text) & "<br>" & tweet_date & "</p>" & emailBody
 		End If
 	Next
-  if emailBody <> "No content." then
-	  Set objEmail = Server.CreateObject("CDO.Message")
-	  objEmail.BodyPart.Charset = "utf-8"
-	  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/sendusing") = 2
-	  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/smtpserver") ="localhost"
-	  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/smtpserverport") = 25
-	  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/smtpusessl") = False
-	  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/smtpconnectiontimeout") = 5000
-	  objEmail.Configuration.Fields.Update
-	  objEmail.From = SENDER_EMAIL
-	  objEmail.To = RECIPIENT_EMAILS
-	  objEmail.Subject = EMAIL_SUBJECT
-	  objEmail.HTMLBody = emailBody
-	  objEmail.Send
-	  set objEmail = Nothing
+
+  Set objEmail = Server.CreateObject("CDO.Message")
+  objEmail.BodyPart.Charset = "utf-8"
+  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/sendusing") = 2
+  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/smtpserver") ="localhost"
+  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/smtpserverport") = 25
+  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/smtpusessl") = False
+  objEmail.Configuration.Fields.Item ("http://schemas.microsoft.com/cdo/configuration/smtpconnectiontimeout") = 5000
+  objEmail.Configuration.Fields.Update
+  objEmail.From = SENDER_EMAIL
+  objEmail.To = RECIPIENT_EMAILS
+  objEmail.Subject = EMAIL_SUBJECT
+  objEmail.HTMLBody = emailBody
+  objEmail.Send
+  set objEmail = Nothing
   end if
 	Response.Flush()
 End Sub
@@ -92,14 +86,6 @@ End Function
 
 Function IsRetweet(ByRef oTweet)
 	IsRetweet = HasKey(oTweet, "retweeted_status")
-End Function
-
-Function IsReply(ByRef oTweet)
-	IsReply = Not oTweet.get("in_reply_to_user_id") = Null
-End Function
-
-Function HasKey(ByRef oTweet, ByVal sKeyName)
-	HasKey = Not CStr("" & oTweet.get(sKeyName)) = ""
 End Function
 
 Function URLsBecomeLinks(sText)
