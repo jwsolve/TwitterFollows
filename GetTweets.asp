@@ -86,6 +86,14 @@ Function IsRetweet(ByRef oTweet)
 	IsRetweet = HasKey(oTweet, "retweeted_status")
 End Function
 
+Function IsReply(ByRef oTweet)
+	IsReply = Not oTweet.get("in_reply_to_user_id") = Null
+End Function
+
+Function HasKey(ByRef oTweet, ByVal sKeyName)
+	HasKey = Not CStr("" & oTweet.get(sKeyName)) = ""
+End Function
+
 Function URLsBecomeLinks(sText)
 	' Wrap URLs in text with HTML link anchor tags.
 	Dim objRegExp
