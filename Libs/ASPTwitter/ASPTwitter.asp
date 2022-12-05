@@ -163,7 +163,6 @@ Class ASPTwitter
 
 	' API search/tweets: https://dev.twitter.com/docs/api/1.1/get/search/tweets
 	Private Function GetSearchJSON(sAccount, sQuery, iCount, lMaxID)
-
 		Dim sURL : sURL = API_BASE_URL + "/1.1/search/tweets.json" & "?q=" & sAccount & "+" & Server.HTMLEncode(sQuery) & "&count=" & iCount
 
 		If IsNumeric(lMaxID) Then

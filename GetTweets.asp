@@ -1,12 +1,12 @@
 <!--#include file="Libs/ASPTwitter/ASPTwitter.asp"-->
 <%
-const TWITTER_API_CONSUMER_KEY = 	    	""
-const TWITTER_API_CONSUMER_SECRET = 		""
+const TWITTER_API_CONSUMER_KEY = ""
+const TWITTER_API_CONSUMER_SECRET = ""
 const TWITTER_BEARER_TOKEN = ""
 
-TWITTER_ACCOUNTS = Array("@microsoft","@oracle")
+TWITTER_ACCOUNTS = Array("","")
 
-KEYWORDS = Array("ASP.NET 8","Vietnam")
+KEYWORDS = Array("","")
 SENDER_EMAIL = ""
 RECIPIENT_EMAILS = ""
 EMAIL_SUBJECT = "Tweets Update Email"
@@ -16,7 +16,7 @@ if TWITTER_API_CONSUMER_KEY = "" OR TWITTER_API_CONSUMER_SECRET = "" OR TWITTER_
   response.end
 End if
 
-if KEYWORDS = "" OR SENDER_EMAIL = "" OR RECIPIENT_EMAILS = "" Then
+if SENDER_EMAIL = "" OR RECIPIENT_EMAILS = "" Then
   response.write "Please fill in your the twitter accounts, keywords and email details before running this script"
   response.end
 End if
@@ -35,11 +35,84 @@ Call objASPTwitter.ConfigureOAuth(TWITTER_API_OAUTH_TOKEN, TWITTER_API_OAUTH_TOK
 Call objASPTwitter.Login
 objASPTwitter.strBearerToken = TWITTER_BEARER_TOKEN
 For Each twitter_account In TWITTER_ACCOUNTS
+	Call LoadTweetsUserTimeline(twitter_account)
+	Call WriteTweetsUserTimeline
   For Each search_criteria in KEYWORDS
     Call LoadTweetsSearch(twitter_account, search_criteria)
 	Call WriteTweetSearch
   Next
 Next
+
+Sub LoadTweetsUserTimeline(useraccount)
+
+	' Configure the API call.
+	Dim sUsername : sUsername = useraccount
+	Dim iCount : iCount = 10
+	Dim bExcludeReplies : bExcludeReplies = False
+	Dim bIncludeRTs : bIncludeRTs = True
+
+	Set objTweets = objASPTwitter.GetUserTimeline(sUsername, iCount, bExcludeReplies, bIncludeRTs)
+
+End Sub
+
+Sub WriteTweetsUserTimeline()
+
+	%>
+	<h2>User Timeline</h2>
+
+	<ol id="Tweets"><%
+
+    ' Assumes TypeName(objTweets) = "JScriptTypeInfo"
+    If Not HasKey(objTweets, "length") Then
+    	%><li>GetTweets.asp: No tweets.</li><%
+        Exit Sub
+    End If
+
+	If objTweets.length = 0 Then
+		%><li>GetTweets.asp: No tweets.</li><%
+	End If
+
+	If Err Then
+		%><li>GetTweets.asp: invalid API response.</li><%
+	End if
+
+	Dim oTweet
+	For Each oTweet In objTweets
+
+		' Workarounds.
+		' JSON parser bug workaround:
+		'	- API can return invalid tweets, probably due to characters.
+		' Twitter API bugs:
+		'	- Filtering by the API can return additional invalid items, and seems to filter only after retrieving the requested number of items, so you get less than you asked for.
+		'	- API sometimes seems to exclude replies even if that filter is not set, resulting in "*up to* count" responses and associated issues.
+		If IsTweet(oTweet) Or IsRetweet(oTweet) Then
+
+			' NOTE: A JSON viewer can be useful here: http://www.jsoneditoronline.org/
+			Dim screen_name, text
+			If Not IsRetweet(oTweet) Then
+				screen_name = oTweet.user.screen_name
+				text = URLsBecomeLinks(oTweet.text)
+			Else
+				screen_name = oTweet.retweeted_status.user.screen_name
+				text = URLsBecomeLinks(oTweet.retweeted_status.text)
+			End If
+
+			%>
+		<li>
+			<b class="screen_name">@<%= screen_name %></b>
+			<span class="text"><%= text %></span>
+		</li><%
+
+		End If
+
+	Next
+
+	%>
+	</ol><%
+
+	Response.Flush()
+
+End Sub
 
 Sub LoadTweetsSearch(accountuser, keyword_criteria)
 
@@ -53,16 +126,16 @@ End Sub
 Sub WriteTweetSearch()
 ' Assumes TypeName(objTweets) = "JScriptTypeInfo"
 If Not HasKey(objTweets, "statuses") Then
-  %><li>Tweets.asp: No tweets, have you configured your API key correctly?</li><%
-    Exit Sub
+	%><li>Tweets.asp: No tweets.</li><%
+    	Exit Sub
 End If
 
 If objTweets.statuses.length = 0 Then
-%><li>Tweets.asp: No tweets.</li><%
+	%><li>Tweets.asp: No tweets.</li><%
 End If
 
 If Err Then
-%><li>Tweets.asp: invalid API response.</li><%
+	%><li>Tweets.asp: invalid API response.</li><%
 End if
 
 	If objTweets.statuses.length > 0 Then
