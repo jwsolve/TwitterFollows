@@ -18,8 +18,6 @@ Dim emailBody
 ' Tweets will be obtained by parsing data from Twitter API.
 Dim objTweets
 
-'On Error Resume Next
-
 Set objASPTwitter = New ASPTwitter
 Call objASPTwitter.Configure(TWITTER_API_CONSUMER_KEY, TWITTER_API_CONSUMER_SECRET)
 Call objASPTwitter.ConfigureOAuth(TWITTER_API_OAUTH_TOKEN, TWITTER_API_OAUTH_TOKEN_SECRET)
