@@ -11,6 +11,16 @@ SENDER_EMAIL = ""
 RECIPIENT_EMAILS = ""
 EMAIL_SUBJECT = "Tweets Update Email"
 
+if TWITTER_API_CONSUMER_KEY = "" OR TWITTER_API_CONSUMER_SECRET = "" OR TWITTER_BEARER_TOKEN = "" Then
+  response.write "Please fill in your Twitter API Keys"
+  response.end
+End if
+
+if KEYWORDS = "" OR SENDER_EMAIL = "" OR RECIPIENT_EMAILS = "" Then
+  response.write "Please fill in your the twitter accounts, keywords and email details before running this script"
+  response.end
+End if
+
 ' Twitter API client.
 Dim objASPTwitter
 Dim emailBody
