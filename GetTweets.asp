@@ -51,6 +51,20 @@ Sub LoadTweetsSearch(accountuser, keyword_criteria)
 End Sub
 
 Sub WriteTweetSearch()
+' Assumes TypeName(objTweets) = "JScriptTypeInfo"
+If Not HasKey(objTweets, "statuses") Then
+  %><li>Tweets.asp: No tweets, have you configured your API key correctly?</li><%
+    Exit Sub
+End If
+
+If objTweets.statuses.length = 0 Then
+%><li>Tweets.asp: No tweets.</li><%
+End If
+
+If Err Then
+%><li>Tweets.asp: invalid API response.</li><%
+End if
+
 	If objTweets.statuses.length > 0 Then
 
 	Dim oTweet
